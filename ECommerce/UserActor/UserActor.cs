@@ -57,6 +57,7 @@ namespace UserActor
 
             foreach (string productId in productIDs)
             {
+                // Improvement: need to check if product ID is valid
                 int quantity = await StateManager.GetStateAsync<int>(productId);
                 result.Add(
                     new BasketItem
