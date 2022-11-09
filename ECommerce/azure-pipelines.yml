@@ -86,7 +86,7 @@ stages:
             displayName: 'Deploy Service Fabric Application'
             inputs:
               applicationPackagePath: '$(System.ArtifactsDirectory)/drop/pkg'
-              serviceConnectionName: PS1
+              serviceConnectionName: jameszhang-test
               publishProfilePath: '$(System.ArtifactsDirectory)/drop/PublishProfiles/Cloud.xml'
               applicationParameterPath: '$(System.ArtifactsDirectory)/drop/ApplicationParameters/Cloud.xml'
               compressPackage: true
