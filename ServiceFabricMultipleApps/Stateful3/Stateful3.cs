@@ -44,6 +44,7 @@ namespace Stateful3
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
+
             // TODO: Replace the following sample code with your own logic 
             //       or remove this RunAsync override if it's not needed in your service.
 
@@ -55,6 +56,7 @@ namespace Stateful3
             // - put information in the data file?
 
             var stopwatch = new Stopwatch();
+
 
             var testDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary2<string, byte[]>>("testDictionary");
 
@@ -68,6 +70,25 @@ namespace Stateful3
 
                 await tx.CommitAsync();
             }
+
+            stopwatch.Restart();
+
+            for (int i = 0; i < 1000; i++)
+            {
+                using (var tx = this.StateManager.CreateTransaction())
+                {
+                    await testDictionary.AddOrUpdateAsync(tx, "apple", new byte[4096], (key, value) => value);
+                    await testDictionary.AddOrUpdateAsync(tx, "Banana", new byte[4096], (key, value) => value);
+                    await tx.CommitAsync();
+                }
+            }
+            stopwatch.Stop();
+
+            long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+
+            ServiceEventSource.Current.ServiceMessage(this.Context, "AddOrUpdate testDictionary time: {0} ms.", elapsedMilliseconds);
+            _logger.LogInformation("AddOrUpdate testDictionary time: {0} ms.", elapsedMilliseconds);
+
 
             //// Read from the file
             //var aztmDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary2<string, string>>("aztmDictionary");
@@ -114,25 +135,7 @@ namespace Stateful3
 
             //}
 
-            var dummyDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary2<string, byte[]>>("dummyDictionary");
 
-
-
-            stopwatch.Restart();
-            for (int i = 0; i < 1000; i++)
-            {
-                using (var tx = this.StateManager.CreateTransaction())
-                {
-                    await dummyDictionary.AddOrUpdateAsync(tx, i.ToString(), new byte[4096], (key, value) => value);
-                    await tx.CommitAsync();
-                }
-            }
-            stopwatch.Stop();
-
-            long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
-
-            ServiceEventSource.Current.ServiceMessage(this.Context, "AddOrUpdate dummyDictionary time: {0} ms.", elapsedMilliseconds);
-            _logger.LogInformation("AddOrUpdate dummyDictionary time: {0} ms.", elapsedMilliseconds);
 
 
             var myDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("myDictionary");
@@ -157,8 +160,8 @@ namespace Stateful3
 
                     while (await enumerator.MoveNextAsync(CancellationToken.None).ConfigureAwait(false))
                     {
-                        ServiceEventSource.Current.ServiceMessage(this.Context, "Stateful3: Key: {0}, Value: {1}", enumerator.Current.Key, enumerator.Current.Value);
-                        _logger.LogInformation($"Stateful3 key: {enumerator.Current.Key}, value: {enumerator.Current.Value}");
+                        ServiceEventSource.Current.ServiceMessage(this.Context, "Stateful1: Key: {0}, Value: {1}", enumerator.Current.Key, enumerator.Current.Value);
+                        _logger.LogInformation($"Stateful1 key: {enumerator.Current.Key}, value: {enumerator.Current.Value}");
 
                     }
 
@@ -171,5 +174,6 @@ namespace Stateful3
                 // Your logic here
             }
         }
+
     }
 }

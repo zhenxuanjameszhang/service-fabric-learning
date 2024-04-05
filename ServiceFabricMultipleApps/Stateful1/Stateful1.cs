@@ -105,6 +105,25 @@ namespace Stateful1
                 await tx.CommitAsync();
             }
 
+            stopwatch.Restart();
+
+            for (int i = 0; i < 1000; i++)
+            {
+                using (var tx = this.StateManager.CreateTransaction())
+                {
+                    await testDictionary.AddOrUpdateAsync(tx, "apple", new byte[4096], (key, value) => value);
+                    await testDictionary.AddOrUpdateAsync(tx, "Banana", new byte[4096], (key, value) => value);
+                    await tx.CommitAsync();
+                }
+            }
+            stopwatch.Stop();
+
+            long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+
+            ServiceEventSource.Current.ServiceMessage(this.Context, "AddOrUpdate testDictionary time: {0} ms.", elapsedMilliseconds);
+            _logger.LogInformation("AddOrUpdate testDictionary time: {0} ms.", elapsedMilliseconds);
+
+
             //// Read from the file
             //var aztmDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary2<string, string>>("aztmDictionary");
 
@@ -150,25 +169,7 @@ namespace Stateful1
 
             //}
 
-            var dummyDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary2<string, byte[]>>("dummyDictionary");
 
-
-
-            stopwatch.Restart();
-            for (int i = 0; i < 1000; i++)
-            {
-                using (var tx = this.StateManager.CreateTransaction())
-                {
-                    await dummyDictionary.AddOrUpdateAsync(tx, i.ToString(), new byte[4096], (key, value) => value);
-                    await tx.CommitAsync();
-                }
-            }
-            stopwatch.Stop();
-
-            long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
-
-            ServiceEventSource.Current.ServiceMessage(this.Context, "AddOrUpdate dummyDictionary time: {0} ms.", elapsedMilliseconds);
-            _logger.LogInformation("AddOrUpdate dummyDictionary time: {0} ms.", elapsedMilliseconds);
 
 
             var myDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("myDictionary");

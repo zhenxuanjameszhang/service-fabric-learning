@@ -10,6 +10,6 @@
   <ApplicationParameterFile Path="..\ApplicationParameters\Local.5Node.xml" />
   <StartupServiceParameterFile Path="..\StartupServiceParameters\Local.5Node.xml" />
   <UpgradeDeployment Mode="Monitored" Enabled="false">
-    <Parameters FailureAction="Rollback" UpgradeReplicaSetCheckTimeoutSec="1" Force="True" />
+    <Parameters FailureAction="Rollback" UpgradeReplicaSetCheckTimeoutSec="1" Force="True" HealthCheckRetryTimeoutSec="60" />
   </UpgradeDeployment>
 </PublishProfile>
